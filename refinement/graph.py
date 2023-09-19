@@ -68,21 +68,21 @@ def split_goal(goal:Goal, cached_states:CacheStates):
     return goal_nr, goal_r
 
 
-def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9):
+def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000):
 
     edges = []
-    explore(head, None, env, minimum_reach, edges)
+    explore(head, None, env, minimum_reach, edges, n_episodes)
 
-def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = []):
+def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000):
 
     if parent.final:
-        return
+        return False
 
     for child in parent:
         if parent.name+"_"+child['child'].name not in edges:
             
             print(f"Evaluating edge ({parent.name}, {child['child'].name})")
-            reach, policy, cached_states = train_policy(env, parent, child['child'])
+            reach, policy, cached_states = train_policy(env, parent, child['child'], n_episodes, minimum_reach)
 
             print(f"Edge ({parent.name}, {child['child'].name}) reach probability: {reach}")
             if reach < minimum_reach and parent.splittable and grandparent is not None:
@@ -116,7 +116,14 @@ def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float 
             edges.append(parent.name+"_"+child['child'].name)
 
             del cached_states
-            explore(child['child'], parent, env, minimum_reach, edges)
+            status = explore(child['child'], parent, env, minimum_reach, edges, n_episodes)
+            
+            if status:
+                return status
+        
+        if child['child'].final and reach>=minimum_reach:
+            return True
+            
 
 
 

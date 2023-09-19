@@ -138,7 +138,7 @@ def sample_policy(env: gym.Env, observation:np.ndarray, policy:PPO, goal:Goal):
     
     return final_terminated, total_reward, info
 
-def train_policy(env: gym.Env, start_node, end_node):
+def train_policy(env: gym.Env, start_node, end_node, n_episodes=3000, minimum_reach=0.9):
 
     policy = PPO(
         state_dim = env.observation_space.shape[0],
@@ -156,7 +156,7 @@ def train_policy(env: gym.Env, start_node, end_node):
 
     reach = []
     rewards = [0]
-    episodes = trange(3000, desc='reach')
+    episodes = trange(n_episodes, desc='reach')
     for episode in episodes:
         
         observation = start_node.sample_state()
@@ -168,11 +168,11 @@ def train_policy(env: gym.Env, start_node, end_node):
         rewards.append(reward)
         cached_states.insert(start_observation, reached or info['is_success'])
 
-        episodes.set_description(f"Current reach: {sum(reach)/1000:.2f}, total_reach: {sum(reach)}, reward: {statistics.mean(rewards):.2f}±{statistics.stdev(rewards):.1f}")
-        if len(reach) > 1000:
-            reach = reach[-1000:]
+        episodes.set_description(f"Current reach: {sum(reach)/200:.2f}, total_reach: {sum(reach)}, reward: {statistics.mean(rewards):.2f}±{statistics.stdev(rewards):.1f}")
+        if len(reach) > 200:
+            reach = reach[-200:]
         
-        if sum(reach)/1000 > 0.9:
+        if sum(reach)/200 > minimum_reach:
             break
 
         if episode % 10 == 0:

@@ -1,28 +1,33 @@
+import argparse
+import random
+import numpy
+import torch
+from four_grid import run_4grid
+from three_grid import run_3grid
+import os
 
-# import random
-# random.seed(0)
-# import numpy as np
-# np.random.seed(0)
-# import torch
-# torch.random.manual_seed(0)
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--seed", type=int, default=0)
+parser.add_argument("-e", "--exp-id", type=int, default=0)
+parser.add_argument("-g", "--grid-size", type=int, default=3)
+parser.add_argument("-n", "--n-episodes", type=int, default=3000)
+parser.add_argument("-m", "--min-reach", type=float, default=0.9)
 
-from refinement.graph import Node, depth_first_traversal
-from refinement.goal import Goal
-from env.dirl_grid import RoomsEnv
-from env.rooms_envs import GRID_PARAMS_LIST, MAX_TIMESTEPS, START_ROOM, FINAL_ROOM
+if __name__ == "__main__":
+    args = parser.parse_args()
+    print("seed:", args.seed)
+    print("exp_id:", args.exp_id)
+    print("grid_size:", args.grid_size)
+    
+    path = f"results/{args.grid_size}_grid-exp_{args.exp_id}-n_ep_{args.n_episodes}-seed_{args.seed}"
+    if not os.path.exists(path):
+        os.mkdir(path)
 
-start_region = Goal(1, 1, 6, 6)
-mid_region = Goal(17, 1, 12, 6)
-goal_region = Goal(17, 17, 6, 6)
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    numpy.random.seed(args.seed)
 
-start_node = Node(start_region, False, False, "start")
-mid_node = Node(mid_region, True, False, "mid")
-goal_node = Node(goal_region, False, True, "goal")
-
-start_node.add_child(mid_node)
-mid_node.add_child(goal_node)
-
-
-
-env = RoomsEnv(GRID_PARAMS_LIST[0], START_ROOM[0], FINAL_ROOM[0])
-depth_first_traversal(start_node, env, 0.9)
+    if args.grid_size == 3:
+        run_3grid(args.min_reach, args.n_episodes)
+    else:
+        run_4grid(args.min_reach, args.n_episodes)
