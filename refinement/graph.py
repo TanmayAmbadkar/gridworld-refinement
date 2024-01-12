@@ -119,7 +119,7 @@ def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float 
             status = explore(child['child'], parent, env, minimum_reach, edges, n_episodes)
             
             if status:
-                return status
+                return False
         
         if child['child'].final and reach>=minimum_reach:
             return True

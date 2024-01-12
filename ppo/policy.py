@@ -168,11 +168,11 @@ def train_policy(env: gym.Env, start_node, end_node, n_episodes=3000, minimum_re
         rewards.append(reward)
         cached_states.insert(start_observation, reached or info['is_success'])
 
-        episodes.set_description(f"Current reach: {sum(reach)/200:.2f}, total_reach: {sum(reach)}, reward: {statistics.mean(rewards):.2f}±{statistics.stdev(rewards):.1f}")
-        if len(reach) > 200:
-            reach = reach[-200:]
+        episodes.set_description(f"Current reach: {sum(reach)/1000:.2f}, total_reach: {sum(reach)}, reward: {statistics.mean(rewards):.2f}±{statistics.stdev(rewards):.1f}")
+        if len(reach) > 1000:
+            reach = reach[-1000:]
         
-        if sum(reach)/200 > minimum_reach:
+        if sum(reach)/1000 > minimum_reach:
             break
 
         if episode % 10 == 0:
