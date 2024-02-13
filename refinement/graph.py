@@ -56,24 +56,16 @@ def split_goal(goal:Goal, cached_states:CacheStates):
         reachable = False
     )
 
-    goal_r = ModifiedGoal(
-        x = goal.x, 
-        y = goal.y,
-        height = goal.height,
-        width = goal.width,
-        classifier = model,
-        reachable = True
-    )
 
-    return goal_nr, goal_r
+    return goal_nr
 
 
 def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000):
 
     edges = []
-    explore(head, None, env, minimum_reach, edges, n_episodes)
+    explore(head, env, minimum_reach, edges, n_episodes)
 
-def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000):
+def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000):
 
     if parent.final:
         return False
@@ -85,30 +77,19 @@ def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float 
             reach, policy, cached_states = train_policy(env, parent, child['child'], n_episodes, minimum_reach)
 
             print(f"Edge ({parent.name}, {child['child'].name}) reach probability: {reach}")
-            if reach < minimum_reach and parent.splittable and grandparent is not None:
+            if reach < minimum_reach and child.splittable:
 
                 print(f"Edge ({parent.name}, {child['child'].name}) not realised: {reach}")
-                goal_nr, goal_r = split_goal(goal = parent.goal, cached_states = cached_states)
+                _, goal_r = split_goal(goal = child.goal, cached_states = cached_states)
 
                 goal_r_node = Node(
                     goal = goal_r, 
                     splittable=False,
-                    final = parent.final,
-                    name = parent.name + "_r"
+                    final = child.final,
+                    name = child.name + "_r"
                 )
 
-                goal_nr_node = Node(
-                    goal = goal_nr, 
-                    splittable=False,
-                    final = parent.final,
-                    name = parent.name + "_nr"
-                )
-
-                goal_nr_node.add_child(goal_r_node)
-                goal_r_node.add_child(child['child'])
-
-                grandparent.add_child(goal_r_node)
-                grandparent.add_child(goal_nr_node)
+                parent.add_child(goal_r_node)
                 # grandparent.add_child(goal_r_node)
             
             parent.children[id(child['child'])]['reach_probability'] = reach
@@ -116,7 +97,7 @@ def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float 
             edges.append(parent.name+"_"+child['child'].name)
 
             del cached_states
-            status = explore(child['child'], parent, env, minimum_reach, edges, n_episodes)
+            status = explore(child['child'], env, minimum_reach, edges, n_episodes)
             
             if status:
                 return False

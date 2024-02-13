@@ -128,12 +128,12 @@ def sample_policy(env: gym.Env, observation:np.ndarray, policy:PPO, goal:Goal):
 
         policy.buffer.rewards.append(reward)
 
-        if goal.predicate(observation):
+        if goal.reward(observation) > 0:
             final_terminated = True
         
         policy.buffer.is_terminals.append(final_terminated)
 
-        if terminated or truncated or final_terminated:
+        if final_terminated:
             break
     
     return final_terminated, total_reward, info
@@ -161,12 +161,12 @@ def train_policy(env: gym.Env, start_node, end_node, n_episodes=3000, minimum_re
         
         observation = start_node.sample_state()
         env.reset(observation)
-        start_observation = observation.copy()
+        goal_observation = end_node.goal.reset()
         
         reached, reward, info = sample_policy(env, observation, policy, end_node.goal)
-        reach.append(reached or info['is_success'])
+        reach.append(reached)
         rewards.append(reward)
-        cached_states.insert(start_observation, reached or info['is_success'])
+        cached_states.insert(goal_observation, reached)
 
         episodes.set_description(f"Current reach: {sum(reach)/1000:.2f}, total_reach: {sum(reach)}, reward: {statistics.mean(rewards):.2f}±{statistics.stdev(rewards):.1f}")
         if len(reach) > 1000:

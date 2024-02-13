@@ -3,16 +3,16 @@ from refinement.goal import Goal
 from env.dirl_grid import RoomsEnv
 from env.rooms_envs import GRID_PARAMS_LIST, MAX_TIMESTEPS, START_ROOM, FINAL_ROOM
 
-start_region = Goal(1, 1, 6, 6)
-mid_region = Goal(17, 1, 12, 6)
-goal_region = Goal(17, 17, 6, 6)
+start_region = Goal(12, 1, 6, 12)
+# mid_region = Goal(17, 1, 12, 6)
+goal_region = Goal(12, 12, 6, 12)
 
 start_node = Node(start_region, False, False, "start")
-mid_node = Node(mid_region, True, False, "mid")
+# mid_node = Node(mid_region, True, False, "mid")
 goal_node = Node(goal_region, False, True, "goal")
 
-start_node.add_child(mid_node)
-mid_node.add_child(goal_node)
+start_node.add_child(goal_node)
+# mid_node.add_child(goal_node)
 
 
 
