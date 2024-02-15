@@ -133,7 +133,7 @@ def sample_policy(env: gym.Env, observation:np.ndarray, policy:PPO, goal:Goal):
         
         policy.buffer.is_terminals.append(final_terminated)
 
-        if final_terminated:
+        if final_terminated or terminated or truncated:
             break
     
     return final_terminated, total_reward, info
@@ -144,11 +144,11 @@ def train_policy(env: gym.Env, start_node, end_node, n_episodes=3000, minimum_re
         state_dim = env.observation_space.shape[0],
         action_dim = env.action_space.shape[0],
         continuous=True,
-        lr_actor=0.0003,
-        lr_critic=0.0003,
-        gamma = 0.9,
+        lr_actor=0.0001,
+        lr_critic=0.0001,
+        gamma = 0.99,
         K_epochs = 40,
-        eps_clip = 0.2,
+        eps_clip = 0.1,
         device = "cpu"
     )
 

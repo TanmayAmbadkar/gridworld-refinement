@@ -47,17 +47,17 @@ def split_goal(goal:Goal, cached_states:CacheStates):
 
     model = train_model(cached_states)
 
-    goal_nr = ModifiedGoal(
+    goal_r = ModifiedGoal(
         x = goal.x, 
         y = goal.y,
         height = goal.height,
         width = goal.width,
         classifier = model,
-        reachable = False
+        reachable = True
     )
 
 
-    return goal_nr
+    return goal_r
 
 
 def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000):
@@ -77,10 +77,10 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
             reach, policy, cached_states = train_policy(env, parent, child['child'], n_episodes, minimum_reach)
 
             print(f"Edge ({parent.name}, {child['child'].name}) reach probability: {reach}")
-            if reach < minimum_reach and child.splittable:
+            if reach < minimum_reach and child['child'].splittable:
 
                 print(f"Edge ({parent.name}, {child['child'].name}) not realised: {reach}")
-                _, goal_r = split_goal(goal = child.goal, cached_states = cached_states)
+                goal_r = split_goal(goal = child['child'].goal, cached_states = cached_states)
 
                 goal_r_node = Node(
                     goal = goal_r, 

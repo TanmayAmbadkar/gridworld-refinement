@@ -27,7 +27,7 @@ class Goal(AbstractState):
     
     def reward(self, state:np.ndarray):
         if np.linalg.norm(state - self.current_goal)**2 < 0.2:
-            return 5
+            return 10
         else:
             return -np.abs(np.sum(np.array([(self.x + self.width)/2, (self.y + self.height)/2]) - state))/100
 

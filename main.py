@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--seed", type=int, default=0)
 parser.add_argument("-e", "--exp-id", type=int, default=0)
 parser.add_argument("-g", "--grid-size", type=int, default=3)
-parser.add_argument("-n", "--n-episodes", type=int, default=3000)
+parser.add_argument("-n", "--n-episodes", type=int, default=5000)
 parser.add_argument("-m", "--min-reach", type=float, default=0.9)
 
 if __name__ == "__main__":
