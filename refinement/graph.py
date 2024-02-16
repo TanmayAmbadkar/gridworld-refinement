@@ -85,8 +85,8 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
                 goal_r_node = Node(
                     goal = goal_r, 
                     splittable=False,
-                    final = child.final,
-                    name = child.name + "_r"
+                    final = child['child'].final,
+                    name = child['child'].name + "_r"
                 )
 
                 parent.add_child(goal_r_node)

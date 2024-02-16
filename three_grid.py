@@ -3,9 +3,9 @@ from refinement.goal import Goal
 from env.dirl_grid import RoomsEnv
 from env.rooms_envs import GRID_PARAMS_LIST, MAX_TIMESTEPS, START_ROOM, FINAL_ROOM
 
-start_region = Goal(8, 1, 6, 6)
+start_region = Goal(1, 1, 6, 6)
 # mid_region = Goal(17, 1, 12, 6)
-goal_region = Goal(12, 12, 6, 12)
+goal_region = Goal(9, 17, 6, 12)
 
 start_node = Node(start_region, False, False, "start")
 # mid_node = Node(mid_region, True, False, "mid")
