@@ -1,8 +1,8 @@
 class RolloutBuffer:
-    def __init__(self, max_len = 200):
+    def __init__(self, max_len = 2048):
         self.actions = []
         self.states = []
-        self.max_len = 200
+        self.max_len = max_len
         self.logprobs = []
         self.rewards = []
         self.is_terminals = []
