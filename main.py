@@ -20,6 +20,7 @@ if __name__ == "__main__":
     print("seed:", args.seed)
     print("exp_id:", args.exp_id)
     print("grid_size:", args.grid_size)
+    print("train_eps:", args.n_episodes)
     
     path = f"results/{args.grid_size}_grid-exp_{args.exp_id}-n_ep_{args.n_episodes}-seed_{args.seed}"
     if not os.path.exists(path):

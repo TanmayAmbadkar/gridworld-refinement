@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 class ContinuousGridworld(gym.Env):
-    def __init__(self, num_rooms = 3, room_size = 8, screen_size=600, custom_doors = [], start_room = (0, 0), goal_room = (1, 0), n_steps = 100, render = True, render_mode = "human"):
+    def __init__(self, num_rooms = 3, room_size = 8, screen_size=600, custom_doors = [], start_room = (0, 0), goal_room = (1, 0), n_steps = 100, render = False, render_mode = "human"):
         super(ContinuousGridworld, self).__init__()
         
         self.grid_size = num_rooms * room_size

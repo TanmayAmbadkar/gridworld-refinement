@@ -25,7 +25,7 @@ def sample_policy(env: gym.Env, observation:np.ndarray, policy:PPO, goal:Goal):
         action, _ = policy.predict(observation)
         # print(action)
         observation, reward, terminated, truncated, info = env.step(action)
-        env.render()
+        # env.render()
         traj.append(observation)
         total_reward+=reward
 
@@ -66,7 +66,7 @@ def test_policy(policy: PPO, env: gym.Env, start_node, end_node, n_episodes=3000
     for episode in episodes:
         
         observation, _ = env.reset()
-        env.render()
+        # env.render()
         
         reached, reward, info, traj= sample_policy(env, observation, policy, end_node.goal)
         reach.append(reached)
