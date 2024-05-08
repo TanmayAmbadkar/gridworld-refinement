@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import gymnasium as gym
-from ppo.policy import train_policy
+from ppo.policy_sb3 import train_policy, test_policy
 from refinement.utils import CacheStates, train_model
 from refinement.goal import Goal, ModifiedGoal
 class Node():
@@ -68,12 +68,14 @@ def split_goal(goal:Goal, cached_states:CacheStates):
     return goal_nr, goal_r
 
 
-def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000):
+def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000, n_episodes_test: int = 3000, path: str = ""):
 
     edges = []
-    explore(head, None, env, minimum_reach, edges, n_episodes)
+    
+    file = open(path + "/result.txt", "w")
+    explore(head, None, env, minimum_reach, edges, n_episodes, n_episodes_test, file)
 
-def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000):
+def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000, n_episodes_test: int = 3000, file = None):
 
     if parent.final:
         return False
@@ -82,9 +84,12 @@ def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float 
         if parent.name+"_"+child['child'].name not in edges:
             
             print(f"Evaluating edge ({parent.name}, {child['child'].name})")
-            reach, policy, cached_states = train_policy(env, parent, child['child'], n_episodes, minimum_reach)
+            policy = train_policy(env, parent, child['child'], n_episodes, minimum_reach)
+            reach, cached_states = test_policy(policy, env, parent, child['child'], n_episodes_test)
 
             print(f"Edge ({parent.name}, {child['child'].name}) reach probability: {reach}")
+
+            print(f"{parent.name}, {child['child'].name}: {reach}", file=file)
             if reach < minimum_reach and parent.splittable and grandparent is not None:
 
                 print(f"Edge ({parent.name}, {child['child'].name}) not realised: {reach}")
@@ -109,14 +114,13 @@ def explore(parent: Node, grandparent: Node, env: gym.Env, minimum_reach: float 
 
                 grandparent.add_child(goal_r_node)
                 grandparent.add_child(goal_nr_node)
-                # grandparent.add_child(goal_r_node)
             
             parent.children[id(child['child'])]['reach_probability'] = reach
             parent.children[id(child['child'])]['policy'] = policy
             edges.append(parent.name+"_"+child['child'].name)
 
             del cached_states
-            status = explore(child['child'], parent, env, minimum_reach, edges, n_episodes)
+            status = explore(child['child'], parent, env, minimum_reach, edges, n_episodes, n_episodes_test, file)
             
             if status:
                 return False

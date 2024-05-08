@@ -26,7 +26,7 @@ class GridParams:
     # size: (h:int, w:int) specifying size of grid
     # edges: list of pairs of adjacent rooms (room is a pair (x,y) - 0 based indexing)
     #        first coordinate is the vertical position (just like matrix indexing)
-    # room_size: (l:int, b:int) size of a single room (height first)
+    # room_size: (l:int, b:int) si ze of a single room (height first)
     # wall_size: (tx:int, ty:int) thickness of walls (thickness of horizontal wall first)
     # vertical_door, horizontal_door: relative coordinates for door, specifies min and max
     #                                 coordinates for door space
