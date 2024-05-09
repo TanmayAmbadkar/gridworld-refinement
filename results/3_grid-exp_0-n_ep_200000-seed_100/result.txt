@@ -1,0 +1,2 @@
+Edge (start, goal) reach probability: 0.2898
+Edge (start, goal_r) reach probability: 0.6726
