@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Define the list of seeds
-seeds=(0 10 20 30 40)
+seeds=(100 200 300 400 500)
 
 # Define the list of n-episodes
-n_episodes=(50000 100000 200000 500000)
+n_episodes=(200000 500000)
 
 # Loop through each seed
 for seed in "${seeds[@]}"; do
