@@ -5,7 +5,8 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 import matplotlib.pyplot as plt
-
+from func_timeout import func_timeout, FunctionTimedOut
+import sys
 
 class ContinuousGridworld(gym.Env):
     def __init__(self, num_rooms = 3, room_size = 8, screen_size=600, custom_doors = {}, start_room = (0, 0), goal_room = (1, 0), n_steps = 100, render = True, render_mode = "human"):
@@ -158,8 +159,13 @@ class ContinuousGridworld(gym.Env):
                                    np.random.uniform(low = (self.start_room[1])*self.room_size+1, high = (self.start_room[1]+1)*self.room_size-1)])
             angle_rad, distance = self.angle_and_distance(self.agent_pos, np.array([self.goal_room[0]*self.room_size/2, self.goal_room[1]*self.room_size/2]))
         else:
-            self.goal_node.goal.reset()
-            self.agent_pos = self.start_node.sample_state()
+            try:
+                func_timeout(10, self.goal_node.goal.reset)
+                self.agent_pos = func_timeout(10, self.start_node.sample_state)
+            except FunctionTimedOut as e:
+                print(e)
+                print("Function timed out")
+                sys.exit(1)
             angle_rad, distance = self.angle_and_distance(self.agent_pos, self.goal_node.goal.current_goal)
         self.current_steps = 0
         self.trajectories.append([[self.agent_pos], False, self.goal_node.goal.current_goal])
