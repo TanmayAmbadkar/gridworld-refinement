@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial import ConvexHull
 class AbstractState():
 
     def __init__(self, x: float, y: float, height: float, width: float):
@@ -15,7 +16,7 @@ class Goal(AbstractState):
 
     def __init__(self, x:float, y:float, height:float, width:float):
         super().__init__(x, y, height, width)
-        self.current_goal = None
+        # self.current_goal = self.sample_state()
 
     def reset(self):
         self.current_goal = self.sample_state()
@@ -23,36 +24,37 @@ class Goal(AbstractState):
         
     def predicate(self, state:np.ndarray):
 
-        return self.x <= state[0] <= self.x + self.width and self.y <= state[1] <= self.y + self.height
+        return self.current_goal[0] - 1 <= state[0] <= self.current_goal[0] + 1 \
+                and self.current_goal[1] - 1 <= state[1] <= self.current_goal[1] + 1
+    
+    def in_goal_region(self, state:np.ndarray):
+
+        return self.x <= state[0] <= self.x + self.width \
+                and self.y <= state[1] <= self.y + self.height
     
     def reward(self, state:np.ndarray):
-        if np.linalg.norm(state - self.current_goal)**2 < 0.2:
+        if self.predicate(state[:2]):
             return 10
         else:
-            return -np.abs(np.sum(np.array([(self.x + self.width)/2, (self.y + self.height)/2]) - state))/100
+            
+            return state[3] - np.sqrt(np.sum((state[:2] - self.current_goal)**2))
 
 class ModifiedGoal(Goal):
-    def __init__(self,  x:float, y:float, height:float, width:float, classifier, reachable:bool=False):
+    def __init__(self,  x:float, y:float, height:float, width:float, hull, reachable:bool=False):
         super().__init__(x, y, height, width)
-        self.classifier = classifier
+        self.hull = hull
         self.reachable = reachable
-
-    
-    def predicate(self, state:np.ndarray):
-        if super().predicate(state):
-            prediction = self.classifier.predict(state.reshape(1,-1))
-            return prediction == self.reachable
-        else:
-            return False
-
-    def reward(self, state:np.ndarray):
-        if self.predicate(state):
-            return super.reward(state)
+        
+        print(self.hull)
         
     def sample_state(self):
         state = super().sample_state()
 
-        while not self.predicate(state):
+        while not self.in_goal_region(state):
             state = super().sample_state()
-        
         return state
+
+    def in_goal_region(self, point):
+        new_points = np.vstack([self.hull.points, np.array(point).reshape(1,-1)])
+        new_hull = ConvexHull(new_points)
+        return list(new_hull.vertices) == list(self.hull.vertices)
