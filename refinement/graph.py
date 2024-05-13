@@ -117,7 +117,7 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
                 if child['avoid'] is not None:
                     print("Violations: ", add_avoid_region(child['avoid'], trajectories, k=1))
                 
-                goal_r = split_goal(goal = child['child'].goal, cached_states = cached_states)
+                # goal_r = split_goal(goal = child['child'].goal, cached_states = cached_states)
 
                 # if goal_r is not None:
                 #     goal_r_node = Node(
@@ -142,7 +142,7 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
 
                 
                 for other_parent in child['child'].parents.values():
-                    if id(parent) != id(other_parent):
+                    if id(parent) != id(other_parent) and other_parent not in parent.children :
                         parent.add_child(other_parent)
                         
                 
@@ -153,7 +153,7 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
             edges.append(parent.name+"_"+child['child'].name)
 
             del cached_states
-            status = explore(child['child'], env, minimum_reach, edges, n_episodes, file)
+            status = explore(child['child'], env, minimum_reach, edges, n_episodes, n_episodes_test, file)
             
             if status:
                 return False
