@@ -20,12 +20,12 @@ def sample_policy(env: gym.Env, observation:np.ndarray, policy:PPO, goal:Goal):
     
     final_terminated = False
     total_reward = 0
-    traj = [observation]
+    traj = [observation[:2]]
     while True:
         action, _ = policy.predict(observation)
         # print(action)
         observation, reward, terminated, truncated, info = env.step(action)
-        traj.append(observation)
+        traj.append(observation[:2])
         total_reward+=reward
         # env.render()
 
@@ -49,7 +49,7 @@ def train_policy(env: gym.Env, start_node, end_node, avoid, n_episodes=3000, min
                              deterministic=True, render=True, )
     
     
-    model = PPO("MlpPolicy", env, verbose=0, gamma = 0.9999)
+    model = PPO("MlpPolicy", env, verbose=0, gamma = 0.9999, device = "cpu")
     model.learn(total_timesteps = n_episodes, progress_bar=True)
     model.save("ppo_cartpole")
     return model
