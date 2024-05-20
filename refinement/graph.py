@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 import gymnasium as gym
-from ppo.policy import train_policy
+from ppo.policy_sb3 import train_policy, test_policy
 from refinement.utils import CacheStates, train_model
 from refinement.goal import Goal, ModifiedGoal
+from refinement.avoid import Avoid
 class Node():
 
     def __init__(self, goal:np.ndarray, splittable:bool = True, final:bool=False, name:str = ""):
@@ -21,11 +22,12 @@ class Node():
     def __iter__ (self):
         return self
 
-    def add_child(self, child:Node):
+    def add_child(self, child:Node, avoid=None):
         self.children[id(child)] = {
             "child": child, 
             "reach_probability": 0, 
-            "policy": None
+            "policy": None,
+            "avoid": avoid
         }
 
     def __next__(self):
@@ -45,27 +47,49 @@ class Node():
 
 def split_goal(goal:Goal, cached_states:CacheStates):
 
-    model = train_model(cached_states)
+    hull = train_model(cached_states)
 
     goal_r = ModifiedGoal(
         x = goal.x, 
         y = goal.y,
         height = goal.height,
         width = goal.width,
-        classifier = model,
+        hull = hull,
         reachable = True
     )
-
-
+    
     return goal_r
 
+def add_avoid_region(avoid, trajectories: list, k: int = 1):
+    
+    map_region_points = {}
+    violations = 0
+    for region in avoid.list_of_regions:
+        map_region_points[region] = []
+    
+    for trajectory in trajectories:
+        for i in range(len(trajectory[0]) - 1):
+            region = avoid.check_region(trajectory[0][i], trajectory[0][i+1])
+            if region is not None:
+                # print("avoided")
+                map_region_points[region].extend(trajectory[0][-k-1:-k])
+                violations+=1
+                break
+    
+    for region, points in map_region_points.items():
+        if len(points) >= 3:
+            region.extend_region(points)
+       
+    return violations/len(trajectories)
+    
+    
 
-def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000):
+def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000, n_episodes_test: int = 3000):
 
     edges = []
-    explore(head, env, minimum_reach, edges, n_episodes)
+    explore(head, env, minimum_reach, edges, n_episodes, n_episodes_test)
 
-def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000):
+def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000, n_episodes_test: int = 3000):
 
     if parent.final:
         return False
@@ -74,22 +98,36 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
         if parent.name+"_"+child['child'].name not in edges:
             
             print(f"Evaluating edge ({parent.name}, {child['child'].name})")
-            reach, policy, cached_states = train_policy(env, parent, child['child'], n_episodes, minimum_reach)
+            policy = train_policy(env, parent, child['child'], child['avoid'], n_episodes, minimum_reach)
+            reach, cached_states, trajectories = test_policy(policy, env, parent, child['child'], child['avoid'], n_episodes_test)
 
             print(f"Edge ({parent.name}, {child['child'].name}) reach probability: {reach}")
             if reach < minimum_reach and child['child'].splittable:
 
                 print(f"Edge ({parent.name}, {child['child'].name}) not realised: {reach}")
-                goal_r = split_goal(goal = child['child'].goal, cached_states = cached_states)
+                
+                print("Violations: ", add_avoid_region(child['avoid'], trajectories, k=1))
+                
+                # goal_r = split_goal(goal = child['child'].goal, cached_states = cached_states)
 
-                goal_r_node = Node(
-                    goal = goal_r, 
+                # goal_r_node = Node(
+                #     goal = goal_r, 
+                #     splittable=False,
+                #     final = child['child'].final,
+                #     name = child['child'].name + "_r"
+                # )
+                
+                
+                goal_node_avoid = Node(
+                    goal = child['child'].goal, 
                     splittable=False,
                     final = child['child'].final,
-                    name = child['child'].name + "_r"
+                    name = child['child'].name + "_avoid"
                 )
 
-                parent.add_child(goal_r_node)
+
+                parent.add_child(goal_node_avoid, avoid = child['avoid'])
+                # parent.add_child(goal_r_node, avoid = child['avoid'])
                 # grandparent.add_child(goal_r_node)
             
             parent.children[id(child['child'])]['reach_probability'] = reach
