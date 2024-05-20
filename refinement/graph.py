@@ -84,16 +84,17 @@ def add_avoid_region(avoid, trajectories: list, k: int = 1):
     
     
 
-def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000, n_episodes_test: int = 3000):
+def depth_first_traversal(head: Node, env: gym.Env, minimum_reach: float = 0.9, n_episodes: int = 3000, n_episodes_test: int = 3000, path: str = ""):
 
     edges = []
-    explore(head, env, minimum_reach, edges, n_episodes, n_episodes_test)
+    file = open(path + "/result.txt", "w")
+    explore(head, env, minimum_reach, edges, n_episodes, n_episodes_test, file)
 
-def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000, n_episodes_test: int = 3000):
+def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list = [], n_episodes: int = 3000, n_episodes_test: int = 3000, file = None):
 
     if parent.final:
         return False
-
+    
     for child in parent:
         if parent.name+"_"+child['child'].name not in edges:
             
@@ -102,6 +103,8 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
             reach, cached_states, trajectories = test_policy(policy, env, parent, child['child'], child['avoid'], n_episodes_test)
 
             print(f"Edge ({parent.name}, {child['child'].name}) reach probability: {reach}")
+            
+            print(f"Edge ({parent.name}, {child['child'].name}) reach probability: {reach}", file = file)
             if reach < minimum_reach and child['child'].splittable:
 
                 print(f"Edge ({parent.name}, {child['child'].name}) not realised: {reach}")
@@ -135,7 +138,7 @@ def explore(parent: Node, env: gym.Env, minimum_reach: float = 0.9, edges: list 
             edges.append(parent.name+"_"+child['child'].name)
 
             del cached_states
-            status = explore(child['child'], env, minimum_reach, edges, n_episodes)
+            status = explore(child['child'], env, minimum_reach, edges, n_episodes, file)
             
             if status:
                 return False

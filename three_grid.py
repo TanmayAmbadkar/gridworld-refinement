@@ -39,6 +39,7 @@ env = ContinuousGridworld(
     render_mode="rgb_array", render=False
 )
     
-def run_3grid(minimum_reach: float = 0.9, n_episodes: int = 4000,  n_episodes_test: int = 4000):
-    depth_first_traversal(start_node, env, minimum_reach, n_episodes, n_episodes_test)
+    
+def run_3grid(minimum_reach: float = 0.9, n_episodes: int = 4000,  n_episodes_test: int = 4000, path: str = ""):
+    depth_first_traversal(start_node, env, minimum_reach, n_episodes, n_episodes_test, path)
 
