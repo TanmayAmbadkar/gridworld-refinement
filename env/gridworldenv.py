@@ -73,7 +73,7 @@ class ContinuousGridworld(gym.Env):
         
     def step(self, action):
         # action = action[0]
-        velocity = abs(action[0])*self.room_size
+        velocity = abs(action[0])*self.room_size/2
         direction_deg = (action[1])*np.pi
         
         
@@ -94,7 +94,7 @@ class ContinuousGridworld(gym.Env):
         
         elif self.avoid is not None and self.avoid.check_region(self.agent_pos, new_pos):
             # print(self.agent_pos, new_pos)
-            reward = -1
+            reward = -5
             done = True
         else:
             

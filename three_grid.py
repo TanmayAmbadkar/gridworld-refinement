@@ -36,7 +36,7 @@ custom_doors={
 print(custom_doors)
 env = ContinuousGridworld(
     custom_doors=custom_doors,
-    render_mode="rgb_array"
+    render_mode="rgb_array", render=False
 )
     
 def run_3grid(minimum_reach: float = 0.9, n_episodes: int = 4000,  n_episodes_test: int = 4000):
