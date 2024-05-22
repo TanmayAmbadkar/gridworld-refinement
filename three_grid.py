@@ -37,7 +37,7 @@ custom_doors={
 print(custom_doors)
 env = ContinuousGridworld(
     custom_doors=custom_doors,
-    render_mode="rgb_array",
+    render_mode="rgb_array", render=False
 )
     
     
