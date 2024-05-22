@@ -24,8 +24,8 @@ class Goal(AbstractState):
         
     def predicate(self, state:np.ndarray):
 
-        return self.current_goal[0] - 2 <= state[0] <= self.current_goal[0] + 2 \
-                and self.current_goal[1] - 2 <= state[1] <= self.current_goal[1] + 2
+        return self.current_goal[0] - 1 <= state[0] <= self.current_goal[0] + 1 \
+                and self.current_goal[1] - 1 <= state[1] <= self.current_goal[1] + 1
     
     def in_goal_region(self, state:np.ndarray):
 
@@ -38,7 +38,6 @@ class Goal(AbstractState):
         else:
             
             return state[3] - np.sqrt(np.sum((state[:2] - self.current_goal)**2))
-
 class ModifiedGoal(Goal):
     def __init__(self,  x:float, y:float, height:float, width:float, hull, reachable:bool=False):
         super().__init__(x, y, height, width)

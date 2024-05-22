@@ -68,13 +68,13 @@ def add_avoid_region(avoid, trajectories: list, k: int = 1):
         map_region_points[region] = []
     
     for trajectory in trajectories:
-        
-        region = avoid.check_region(trajectory[0][-2], trajectory[0][-1])
-        if region is not None:
-            # print("avoided")
-            
-            map_region_points[region].extend(trajectory[0][-k-1:-1])
-            violations+=1
+        for i in range(len(trajectory[0])-1):
+            region = avoid.check_region(trajectory[0][i], trajectory[0][i+1])
+            if region is not None:
+                # print("avoided")
+                
+                map_region_points[region].extend(trajectory[0][max(i-k+1, 0) :i+1])
+                violations+=1
     
     for region, points in map_region_points.items():
         if len(points) >= 3:

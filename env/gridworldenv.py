@@ -70,10 +70,11 @@ class ContinuousGridworld(gym.Env):
                     self.walls[wall_bottom] = None
                 if wall_left not in self.walls:
                     self.walls[wall_left] = None
+                    
         
     def step(self, action):
         # action = action[0]
-        velocity = abs(action[0])*self.room_size/2
+        velocity = abs(action[0])*self.room_size/3
         direction_deg = (action[1])*np.pi
         
         
@@ -88,15 +89,16 @@ class ContinuousGridworld(gym.Env):
         new_pos = self.agent_pos.copy() + np.array([dx, dy])       
         # new_pos = np.clip(new_pos, a_min = 0.001, a_max = self.grid_size-0.001)
         is_success = False
+        done = False
         if self.check_intersection(self.agent_pos, new_pos):
-            reward = -5
+            reward = -1
             done = True
-        
-        elif self.avoid is not None and self.avoid.check_region(self.agent_pos, new_pos):
+            
+        if self.avoid is not None and self.avoid.check_region(self.agent_pos, new_pos):
             # print(self.agent_pos, new_pos)
-            reward = -5
+            reward =+ -2
             done = True
-        else:
+        elif not done:
             
             if self.goal_node is None:
                 done = self.check_in_goal(new_pos)
@@ -106,8 +108,8 @@ class ContinuousGridworld(gym.Env):
                 done = self.goal_node.goal.predicate(new_pos)
                 is_success = done
                 reward = self.goal_node.goal.reward(np.append(new_pos, [angle_rad, distance]))
-                if is_success:
-                    reward+=self.n_steps/(self.current_steps+1)
+                # if is_success:
+                    # reward+=self.n_steps/(self.current_steps+1)
             
             self.trajectories[-1][0].append(new_pos)
         

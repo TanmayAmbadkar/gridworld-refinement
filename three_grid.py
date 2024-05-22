@@ -5,7 +5,7 @@ from refinement.avoid import Avoid, Region
 
 from env.gridworldenv import ContinuousGridworld
 
-start_region = Goal(17, 1, 6, 6)
+start_region = Goal(1, 1, 6, 12)
 # mid_region = Goal(17, 1, 12, 6)
 goal_region = Goal(1, 17, 6, 6)
 
@@ -30,13 +30,14 @@ custom_doors={
     ((0, 2), (1, 2)): 7,
     ((0, 1), (1, 1)): 7,
     ((1, 1), (2, 1)): 7,
-    ((0, 1), (0, 2)): 0.5,
+    ((0, 1), (0, 2)): 1,
+    ((1, 0), (1, 1)): 7,
     ((1, 1), (1, 2)): 3,
 }
 print(custom_doors)
 env = ContinuousGridworld(
     custom_doors=custom_doors,
-    render_mode="rgb_array", render=False
+    render_mode="rgb_array",
 )
     
     

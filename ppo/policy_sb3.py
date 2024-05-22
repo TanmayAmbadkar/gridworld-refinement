@@ -49,7 +49,7 @@ def train_policy(env: gym.Env, start_node, end_node, avoid, n_episodes=3000, min
                              deterministic=True, render=True, )
     
     
-    model = PPO("MlpPolicy", env, verbose=0, gamma = 0.9999, device = "cpu")
+    model = PPO("MlpPolicy", env, verbose=0, device = "cpu")
     model.learn(total_timesteps = n_episodes, progress_bar=True)
     model.save("ppo_cartpole")
     return model
